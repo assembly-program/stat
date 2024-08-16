@@ -11,17 +11,19 @@
 _start:
     movq %rsp, %rbp
     subq $144, %rsp
+
     movq %rbp, %rbx
-
     cmpq $2, (%rbx)
-    jne  exit_error
-
+    jne  exit_usage
 section0:
     addq $16, %rbx
 
     open (%rbx), O_RDONLY(%rip), $0
+    testq %rax, %rax
+    js exit_error
 
     pushq %rax
+
     stat %rax, -144(%rbp)
     leaq -144(%rbp), %rbx
 
@@ -47,17 +49,21 @@ section1:
     statField  40(%rbx), group_id(%rip), group_id_len(%rip)
 
     # st_size
-    statField  48(%rbx), file_size(%rip), file_size_len(%rip)   #st_size
+    statField  48(%rbx), file_size(%rip), file_size_len(%rip)
 
     # st_blksize
-    statField  56(%rbx), block_size(%rip), block_size_len(%rip) # st_blksize
+    statField  56(%rbx), block_size(%rip), block_size_len(%rip)
 
     # st_blocks
-    statField  64(%rbx), blocks_number(%rip), blocks_number_len(%rip)   # st_blocks
+    statField  64(%rbx), blocks_number(%rip), blocks_number_len(%rip)
 
 exit_success:
     exit $0
 
-exit_error:
+exit_usage:
     write $1, usage(%rip), usage_len(%rip)
     exit $-1
+
+exit_error:
+    write $2, error(%rip), error_len(%rip)
+    exit $-2

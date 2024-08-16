@@ -1,14 +1,3 @@
-.macro statField num, str, str_len
-    write $1, \str, \str_len
-
-    movq     \num, %rax
-    cvtsi2sd %rax, %xmm0
-    movq     $0, %rdi
-    call     printNumber
-
-    writeln $1
-.endm
-
 .section .data
 file_id: .string "File ID: "
 file_id_len: .quad . - file_id
@@ -42,4 +31,18 @@ blocks_number_len: .quad . - blocks_number
 
 usage: .string "Usage: stat <filename>\n"
 usage_len: .quad . - usage
+
+error: .string "error: failed to open file\n"
+error_len: .quad . - error
+
+.macro statField num, str, str_len
+    write $1, \str, \str_len
+
+    movq     \num, %rax
+    cvtsi2sd %rax, %xmm0
+    movq     $0, %rdi
+    call     printNumber
+
+    writeln $1
+.endm
 
